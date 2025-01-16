@@ -9,7 +9,7 @@ export class DataService {
   private apiUrl = 'http://localhost:5211/api/microwave';
 
   constructor(private http: HttpClient) { }
-
+  
   getPresets(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/presets`);
   }
