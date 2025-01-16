@@ -1,12 +1,10 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { MicrowaveComponent } from './microwave/microwave.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  template: '<app-microwave></app-microwave>',
+  standalone: true,
+  imports: [MicrowaveComponent],
 })
-export class AppComponent {
-  title = 'microwave-app';
-}
+export class AppComponent {}
