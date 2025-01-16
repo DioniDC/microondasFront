@@ -1,11 +1,7 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { config } from './app/app.config.server';
 
-export default async function () {
-  await bootstrapApplication(AppComponent, {
-    providers: [
-      provideHttpClient(withFetch()), // Configura o HttpClient para SSR
-    ],
-  });
-}
+const bootstrap = () => bootstrapApplication(AppComponent, config);
+
+export default bootstrap;

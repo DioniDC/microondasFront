@@ -6,7 +6,8 @@ import { DataService } from './data.service';
   selector: 'app-microwave',
   templateUrl: './microwave.component.html',
   styleUrls: ['./microwave.component.css'],
-  standalone: true
+  standalone: true,
+  imports: [CommonModule], // Adicione HttpClientModule aqui
 })
 export class MicrowaveComponent implements OnInit {
   predefinedButtons: any[] = [];
