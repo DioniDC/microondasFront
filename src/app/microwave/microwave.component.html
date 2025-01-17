@@ -1,52 +1,52 @@
-<!-- microwave.component.html -->
-
 <div class="microwave-container">
-  <!-- Painel do micro-ondas -->
-  <div class="microwave-panel">
-    <!-- Display -->
-    <div class="display">
-      <p class="time">{{ minutes }}:{{ seconds }}</p>
-      <p class="power">Power: {{ power }}</p>
-    </div>
+  <div class="microwave-content">
+    <div class="microwave-panel">
+      <div class="display">
+        <p class="time">{{ minutes }}:{{ seconds }}</p>
+        <p class="power">Power: {{ power }}</p>
+      </div>
 
-    <!-- Painel de controle -->
-    <div class="control-panel">
-      <!-- Teclado numérico -->
-      <div class="numeric-keypad">
-        <button *ngFor="let number of [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]" (click)="setTimeOrPower(number)">
-          {{ number }}
+      <div class="control-panel">
+        <div class="numeric-keypad">
+          <button *ngFor="let number of [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]" (click)="setTimeOrPower(number)">
+            {{ number }}
+          </button>
+        </div>
+
+        <div class="controls">
+          <button (click)="startOrPause()">{{ running ? 'Pause' : 'Start' }}</button>
+          <button (click)="add30Seconds()">+30 Sec</button>
+          <button (click)="cancel()">Cancel</button>
+        </div>
+      </div>
+
+      <div class="predefined-buttons">
+        <button *ngFor="let button of predefinedButtons" (click)="selectPredefined(button)">
+          {{ button.nome }}
         </button>
       </div>
 
-      <!-- Botões de controle -->
-      <div class="controls">
-        <button (click)="startOrPause()">{{ running ? 'Pause' : 'Start' }}</button>
-        <button (click)="add30Seconds()">+30 Sec</button>
-        <button (click)="cancel()">Cancel</button>
+      <button id="toggle-setting-button" (click)="toggleSetting()">
+        Ajustar {{ settingPower ? 'Tempo' : 'Potência' }}
+      </button>
+
+      <div class="custom-buttons">
+        <button 
+          *ngFor="let button of customButtons; let i = index" 
+          (mousedown)="startDeleteTimer(button, i)" 
+          (mouseup)="handleCustomClick(button, i)" 
+          (mouseleave)="cancelDeleteTimer()">
+          {{ button.nome || 'BRANCO' }}
+        </button>
       </div>
+
     </div>
 
-    <div class="predefined-buttons">
-      <button *ngFor="let button of predefinedButtons" (click)="selectPredefined(button)">
-        {{ button.nome }}
-      </button>
+    <div class="instruction-panel" *ngIf="instruction || powerOutput">
+      <h3>INSTRUÇÃO</h3>
+      <p>{{ instruction }}</p>
+      <h3>POOOOOOOOTENCIA UTILIZADA</h3>
+      <p>{{ powerOutput }}</p>
     </div>
-    <!-- Botão para alternar entre tempo e potência -->
-    <button id="toggle-setting-button" (click)="toggleSetting()">
-      Ajustar {{ settingPower ? 'Tempo' : 'Potência' }}
-    </button>
-
-    <div class="custom-buttons">
-      <button *ngFor="let button of customButtons; let i = index" (click)="handleCustomClick(button, i)">
-        {{ button.nome || 'BRANCO' }}
-      </button>
-    </div>
-
-  <!-- Janela de instrução e potência -->
-  <div class="instruction-panel" *ngIf="instruction || powerOutput">
-    <h3>Instruction</h3>
-    <p>{{ instruction }}</p>
-    <h3>Power Output</h3>
-    <p>{{ powerOutput }}</p>
   </div>
 </div>

@@ -5,4 +5,5 @@ export interface MicrowaveButton {
     power: number;
     strings: string;
     instrucao: string;
+    alimento: string;
   }

@@ -36,10 +36,24 @@ export class DataService {
   }
 
   saveCustom(button: MicrowaveButton): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/custom`, button);
+    // TIVE QUE MAPEAR PQ NO FRONT FIZ COMO TIME E POWER :'(
+    const buttonToSend = {
+      id: button.id,
+      nome: button.nome,
+      tempo: button.time,
+      potencia: button.power,
+      instrucao: button.instrucao,
+      strings: button.strings,
+      alimento: button.alimento
+    };
+  
+    return this.http.post<any>(`${this.apiUrl}/custom`, buttonToSend);
   }
 
-  deleteCustom(id: number): Observable<void> {
+  deleteCustom(id: number | undefined): Observable<void> {
+    if (id === undefined) {
+      throw new Error('ID não pode ser undefined.');
+    }
     return this.http.delete<void>(`${this.apiUrl}/custom/${id}`);
   }
 }
