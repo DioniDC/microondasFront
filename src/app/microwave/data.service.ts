@@ -56,4 +56,9 @@ export class DataService {
     }
     return this.http.delete<void>(`${this.apiUrl}/custom/${id}`);
   }
+
+  checkStringAvailability(string: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/check-string/${string}`);
+  }
+  
 }

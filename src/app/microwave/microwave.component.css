@@ -70,53 +70,8 @@
   transform: scale(1.05);
 }
 
-.controls {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  width: 100%;
-}
-
-.controls button {
-  padding: 10px;
-  background: linear-gradient(to right, #6a11cb, #2575fc);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.3s ease;
-}
-
-.controls button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.predefined-buttons {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  width: 100%;
-}
-
-.predefined-buttons button {
-  background: linear-gradient(to right, #6a11cb, #2575fc);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: bold;
-  padding: 10px;
-  cursor: pointer;
-  transition: transform 0.3s ease;
-}
-
-.predefined-buttons button:hover {
-  transform: scale(1.05);
-}
-
+.controls,
+.predefined-buttons,
 .custom-buttons {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -124,38 +79,84 @@
   width: 100%;
 }
 
-.custom-buttons button {
+.controls button,
+.predefined-buttons button,
+.custom-buttons button,
+#toggle-setting-button {
+  position: relative;
+  padding: 10px;
   background: linear-gradient(to right, #6a11cb, #2575fc);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 14px;
   font-weight: bold;
-  padding: 10px;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
 }
 
-.custom-buttons button:hover {
-  transform: scale(1.05);
-}
-
-#toggle-setting-button {
-  grid-column: span 3;
+/* Botões customizáveis */
+.custom-buttons button {
+  position: relative;
   padding: 10px;
   background: linear-gradient(to right, #6a11cb, #2575fc);
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
+  font-style: italic; /* Fonte itálica */
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
 }
 
+.custom-buttons button.branco {
+  background-color: #f0f0f0; /* Fundo claro */
+  color: white; /* Igual ao texto dos presets */
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.custom-buttons button.branco:hover {
+  background-color: #ddd; /* Alteração sutil no hover */
+  transform: none; /* Sem efeito de transformação */
+  box-shadow: none; /* Sem sombra */
+}
+
+/* Barra de progresso */
+.custom-buttons button:not(.branco) .progress-bar {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 100%;
+  width: 0;
+  background-color: rgba(255, 0, 0, 0.5);
+  transition: width 3s linear; /* Duração do carregamento */
+}
+
+.custom-buttons button:not(.branco):active .progress-bar {
+  width: 100%;
+}
+
+.custom-buttons button:hover:not(.branco) {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.controls button:hover,
+.predefined-buttons button:hover,
+.custom-buttons button:hover,
 #toggle-setting-button:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+#toggle-setting-button {
+  grid-column: span 3;
+  font-size: 16px;
 }
 
 .instruction-panel {

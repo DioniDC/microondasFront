@@ -15,14 +15,15 @@ export class MicrowaveComponent implements OnInit {
   predefinedButtons: MicrowaveButton[] = [];
   customButtons: MicrowaveButton[] = [];
   time: number = 0; 
-  power: number = 5; 
+  power: number = 10; 
   running: boolean = false; 
   settingPower: boolean = false;
   intervalId: any; 
   powerOutput: string = ''; 
   selectedButton: MicrowaveButton | null = null; 
   instruction: string | null = null;
-  private deleteTimer: any;
+  predefined: boolean = false; 
+  deleteTimer: any;
   constructor(private dataService: DataService) {}
 
   ngOnInit() {
@@ -70,41 +71,108 @@ export class MicrowaveComponent implements OnInit {
   cancel() {
     this.stopTimer();
     this.time = 0;
-    this.power = 5;
+    this.power = 10;
     this.selectedButton = null;
     this.powerOutput = '';
     this.instruction = '';
   }
 
-  add30Seconds() {
-    this.time += 30;
+  showTemporaryMessage(message: string) {
+    const messageElement = document.createElement('div');
+    messageElement.innerText = message;
+    messageElement.style.position = 'fixed';
+    messageElement.style.bottom = '20px';
+    messageElement.style.left = '50%';
+    messageElement.style.transform = 'translateX(-50%)';
+    messageElement.style.backgroundColor = '#f44336';
+    messageElement.style.color = '#fff';
+    messageElement.style.padding = '10px 20px';
+    messageElement.style.borderRadius = '5px';
+    messageElement.style.boxShadow = '0px 4px 6px rgba(0, 0, 0, 0.1)';
+    messageElement.style.zIndex = '1000';
+    document.body.appendChild(messageElement);
+  
+    setTimeout(() => {
+      document.body.removeChild(messageElement);
+    }, 3000);
+  }
+  
+  startOrAdd30Seconds() {
+    if (this.running) {
+      // Se já está rodando, adiciona 30 segundos
+      this.add30Seconds();
+    } else if (this.time > 0) {
+      // Se não está rodando mas tem tempo definido, apenas inicia
+      this.startTimer();
+    } else {
+      // Se não está rodando e não tem tempo definido, inicia com +30 segundos
+      this.time += 30;
+      this.startTimer();
+    }
+  }
+  
+  pauseOrCancel() {
+    if (this.running) {
+      // Se está rodando, pausa
+      this.stopTimer();
+    } else {
+      // Se não está rodando, cancela
+      this.cancel();
+    }
   }
 
+  add30Seconds() {
+    if (this.selectedButton && this.predefinedButtons.includes(this.selectedButton)) {
+      this.showTemporaryMessage("Não é permitido acrescentar tempo em botões predefinidos.");
+      return
+    }
+    this.time += 30;
+  }
+  
   setTimeOrPower(number: number) {
     if (this.running) {
       return; 
     }
-
+  
     if (this.settingPower) {
       this.power = Math.max(1, Math.min(number, 10));
     } else {
       const newTime = this.time * 10 + number;
-      this.time = Math.min(600, newTime);
+  
+      if (newTime >= 60 && newTime <= 99) {
+        this.time = Math.floor(newTime / 60) * 60 + (newTime % 60);
+      } else if (newTime >= 100) {
+
+        const minutes = Math.floor(newTime / 100);
+        const seconds = newTime % 100;
+  
+        if (minutes * 60 + seconds > 120) {
+          this.showTemporaryMessage("O tempo máximo permitido é 02:00.");
+          this.time = 0;
+          return;
+        }
+  
+        this.time = minutes * 60 + seconds;
+      } else {
+        this.time = newTime;
+      }
     }
   }
-
+  
   startOrPause() {
     if (this.running) {
       this.stopTimer();
     } else {
-      this.startTimer();
+      this.startTimer(false);
     }
   }
 
-  startTimer() {
+  startTimer(resetOutput: boolean = true) {
     if (this.time > 0) {
       this.running = true;
-      this.powerOutput = '';
+      if (resetOutput && !this.running) {
+        this.powerOutput = '';
+      }
 
       this.intervalId = setInterval(() => {
         if (this.time > 0) {
@@ -128,14 +196,21 @@ export class MicrowaveComponent implements OnInit {
     this.running = false;
   }
 
-  get minutes(): string {
-    return Math.floor(this.time / 60).toString();
+  get formattedTime(): string {
+    if (this.time === 0) {
+      return "00:00";
+    }
+    return `${this.minutes}:${this.seconds}`;
   }
 
+  get minutes(): string {
+    return Math.floor(this.time / 60).toString().padStart(2, '0');
+  }
+  
   get seconds(): string {
     return (this.time % 60).toString().padStart(2, '0');
   }
-
+  
   get powerString(): string {
     const button = this.predefinedButtons.find(button => button.time === this.time);
 
@@ -188,42 +263,51 @@ export class MicrowaveComponent implements OnInit {
         return;
       }
   
-      const instruction = prompt("Digite a instrução:");
+      let instruction = prompt("Digite a instrução:");
       if (!instruction) {
-        alert("Instrução não pode ser vazia.");
+        instruction = ""
+      }
+
+      const string = prompt("Digite a string de potência (apenas 1 caractere):");
+      if (!string || string.length !== 1) {
+        alert("String deve conter exatamente 1 caractere.");
         return;
       }
+
+      this.dataService.checkStringAvailability(string).subscribe({
+        next: (isAvailable) => {
+          if (!isAvailable) {
+            alert("Essa string já está em uso. Por favor, escolha outra.");
+            return;
+          }
   
-      const string = prompt("Digite a string de potência:");
-      if (!string) {
-        alert("String não pode ser vazia.");
-        return;
-      }
-
-      const newButton: MicrowaveButton = {
-        id: buttonId,
-        nome: name,
-        time: this.time,
-        power: this.power,
-        instrucao: instruction,
-        strings: string,
-        alimento: ''
-      };
-
-      this.dataService.saveCustom(newButton).subscribe({
-        next: () => {
-          this.reloadCustomButtons();
+          const newButton: MicrowaveButton = {
+            id: buttonId,
+            nome: name,
+            time: this.time,
+            power: this.power,
+            instrucao: instruction,
+            strings: string,
+            alimento: '',
+          };
+  
+          this.dataService.saveCustom(newButton).subscribe({
+            next: () => {
+              this.reloadCustomButtons();
+            },
+            error: (err) => {
+              console.error("Erro ao salvar no backend:", err);
+            },
+          });
         },
         error: (err) => {
-          console.error("Erro ao salvar no backend:", err);
-        }
+          console.error("Erro ao verificar disponibilidade da string:", err);
+        },
       });
     } else {
-
       this.loadCustomSettings(button);
       this.selectedButton = button;
       button.id = buttonId;
-
     }
   }
   
@@ -247,13 +331,16 @@ export class MicrowaveComponent implements OnInit {
   }
 
   startDeleteTimer(button: MicrowaveButton, index: number) {
-
     if (this.running) {
       return; 
     }
-
+  
+    if (button.nome === "BRANCO") {
+      console.log("Botão vazio. Disponível para cadastro.");
+      return;
+    }
+  
     this.deleteTimer = setTimeout(() => {
-
       const emptyButton: MicrowaveButton = {
         id: button.id,
         nome: "BRANCO",
@@ -263,10 +350,10 @@ export class MicrowaveComponent implements OnInit {
         instrucao: "",
         alimento: ""
       };
-
+  
       this.customButtons[index] = emptyButton;
   
-      this.dataService.deleteCustom(button.id ?? 0).subscribe({
+      this.dataService.deleteCustom(button.id).subscribe({
         next: () => {
           alert("Botão deletado com sucesso!");
         },
@@ -277,6 +364,7 @@ export class MicrowaveComponent implements OnInit {
       });
     }, 3000); 
   }
+  
   
   cancelDeleteTimer() {
     if (this.deleteTimer) {

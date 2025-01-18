@@ -2,7 +2,7 @@
   <div class="microwave-content">
     <div class="microwave-panel">
       <div class="display">
-        <p class="time">{{ minutes }}:{{ seconds }}</p>
+        <p class="time">{{ formattedTime }}</p>
         <p class="power">Power: {{ power }}</p>
       </div>
 
@@ -14,9 +14,8 @@
         </div>
 
         <div class="controls">
-          <button (click)="startOrPause()">{{ running ? 'Pause' : 'Start' }}</button>
-          <button (click)="add30Seconds()">+30 Sec</button>
-          <button (click)="cancel()">Cancel</button>
+          <button (click)="startOrAdd30Seconds()">{{ running ? '+30 Sec' : 'Start/+30' }}</button>
+          <button (click)="pauseOrCancel()">{{ running ? 'Pause' : 'Cancel' }}</button>
         </div>
       </div>
 
@@ -31,14 +30,18 @@
       </button>
 
       <div class="custom-buttons">
-        <button 
-          *ngFor="let button of customButtons; let i = index" 
-          (mousedown)="startDeleteTimer(button, i)" 
-          (mouseup)="handleCustomClick(button, i)" 
-          (mouseleave)="cancelDeleteTimer()">
+        <button
+          *ngFor="let button of customButtons; let i = index"
+          [class.branco]="button.nome === 'BRANCO'"
+          (mousedown)="startDeleteTimer(button, i)"
+          (mouseup)="handleCustomClick(button, i)"
+          (mouseleave)="cancelDeleteTimer()"
+        >
           {{ button.nome || 'BRANCO' }}
+          <span class="progress-bar"></span>
         </button>
       </div>
+      
 
     </div>
 
